@@ -7,5 +7,6 @@ module.exports = {
   },
   rules: {
     'import/extensions': 0,
+    quotes: ['error', 'single', { avoidEscape: true }],
   },
 };
