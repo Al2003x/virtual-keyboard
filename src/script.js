@@ -2,7 +2,7 @@ import KEYS from './keys.js';
 
 window.onload = () => {
   const hint = document.createElement('p');
-  hint.innerHTML = 'Сделано на Windows: <strong>Сменить раскладку: LeftShift + LeftAlt </strong>';
+  hint.innerHTML = 'Сделано на Windows: <strong>Сменить раскладку: LeftShift + CtrlLeft </strong>';
   document.body.append(hint);
   const textarea = document.createElement('textarea');
   textarea.classList.add('textarea');
@@ -21,7 +21,6 @@ window.onload = () => {
       this.shiftPressed = false;
       this.capslockPressed = false;
       this.ctrlPressed = false;
-      this.altPressed = false;
       this.createKeyboard();
     }
 
@@ -51,7 +50,7 @@ window.onload = () => {
           let updated = button.innerHTML;
 
           if (this.shiftPressed) updated = data[`${this.language}Shift`];
-          else if (this.capslockPressed) updated = data[this.language].toUpperCase();
+          if (this.capslockPressed) updated = data[this.language].toUpperCase();
           else updated = data[this.language];
 
           document.querySelector(`#${data.code}`).innerHTML = updated;
@@ -75,7 +74,7 @@ window.onload = () => {
     }
 
     switchLanguage() {
-      if (this.shiftPressed && this.altPressed) {
+      if (this.shiftPressed && this.ctrlPressed) {
         this.language = this.language === 'en' ? 'ru' : 'en';
         this.setLanguage(this.language);
       }
@@ -84,6 +83,13 @@ window.onload = () => {
     switchShift(shift) {
       if (shift.id === 'ShiftRight' || shift.id === 'ShiftLeft') {
         this.shiftPressed = !this.shiftPressed;
+        this.updateButtons();
+      }
+    }
+
+    switchCtrl(ctrl) {
+      if (ctrl.id === 'ControlLeft') {
+        this.ctrlPressed = !this.ctrlPressed;
         this.updateButtons();
       }
     }
@@ -109,6 +115,9 @@ window.onload = () => {
         newValue += btn[`${this.language}Shift`];
       } else if (this.capslockPressed) {
         newValue += btn[this.language].toUpperCase();
+      } else if (this.tabPressed) {
+        newValue += btn['/n'];
+        this.textarea.focus();
       } else {
         newValue += btn[this.language];
       }
@@ -184,6 +193,46 @@ window.onload = () => {
       } else {
         keyboard.activateButton(event.target.id);
       }
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    event.preventDefault();
+    const virtualButton = document.querySelector(`#${event.code}`);
+    keyboard.updateTextarea(virtualButton);
+
+    keyboard.activateButton(event.code);
+
+    keyboard.switchShift(virtualButton);
+
+    if (event.code === 'CapsLock') {
+      keyboard.switchCapslock(virtualButton);
+    }
+
+    if (event.code === 'ControlLeft') {
+      keyboard.ctrlPressed = true;
+    }
+
+    keyboard.switchLanguage();
+  });
+
+  document.addEventListener('keyup', (event) => {
+    const virtualButton = document.querySelector(`#${event.code}`);
+
+    keyboard.switchShift(virtualButton);
+
+    if (event.code === 'CapsLock') {
+      keyboard.switchCapslock(virtualButton);
+      keyboard.deactivateButton(event.code);
+    } else if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+      keyboard.deactivateAllButtons();
+      keyboard.deactivateButton(event.code);
+    } else {
+      keyboard.deactivateAllButtons();
+    }
+
+    if (event.code === 'ControlLeft') {
+      keyboard.ctrlPressed = false;
     }
   });
 
