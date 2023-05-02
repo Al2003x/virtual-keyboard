@@ -38,7 +38,8 @@ window.onload = () => {
         button.classList = key.classes !== undefined ? key.classes : '';
         button.innerHTML = key.isSpecial ? key.name : key[this.language];
 
-        keyboardView.querySelectorAll('.keyboard__row')[currentRow].append(button);
+        keyboardView
+          .querySelectorAll('.keyboard__row')[currentRow].append(button);
       });
     }
 
@@ -87,13 +88,6 @@ window.onload = () => {
       }
     }
 
-    switchCtrl(ctrl) {
-      if (ctrl.id === 'ControlLeft') {
-        this.ctrlPressed = !this.ctrlPressed;
-        this.updateButtons();
-      }
-    }
-
     switchCapslock(capslock) {
       if (capslock.id === 'CapsLock') {
         this.capslockPressed = !this.capslockPressed;
@@ -115,9 +109,6 @@ window.onload = () => {
         newValue += btn[`${this.language}Shift`];
       } else if (this.capslockPressed) {
         newValue += btn[this.language].toUpperCase();
-      } else if (this.tabPressed) {
-        newValue += btn['/n'];
-        this.textarea.focus();
       } else {
         newValue += btn[this.language];
       }
@@ -147,6 +138,7 @@ window.onload = () => {
           button.id !== 'CapsLock'
           && button.id !== 'ShiftRight'
           && button.id !== 'ShiftLeft'
+          && button.id !== 'Tab'
         ) {
           this.deactivateButton(button.id);
         }
@@ -166,6 +158,12 @@ window.onload = () => {
       keyboard.switchShift(event.target);
       if (event.target.id === 'ControlLeft') {
         keyboard.ctrlPressed = true;
+      } if (event.target.id === 'Enter') {
+        textarea.value += '\n';
+      } if (event.target.id === 'Tab') {
+        textarea.value += '    ';
+      } if (event.target.id === 'Backspace') {
+        textarea.value = textarea.value.slice(0, textarea.value.length - 1);
       }
       keyboard.switchLanguage();
     }
@@ -208,11 +206,18 @@ window.onload = () => {
     if (event.code === 'CapsLock') {
       keyboard.switchCapslock(virtualButton);
     }
-
     if (event.code === 'ControlLeft') {
       keyboard.ctrlPressed = true;
     }
-
+    if (event.code === 'Enter') {
+      textarea.value += '\n';
+    }
+    if (event.code === 'Backspace') {
+      textarea.value = textarea.value.slice(0, textarea.value.length - 1);
+    }
+    if (event.code === 'Tab') {
+      textarea.value += '    ';
+    }
     keyboard.switchLanguage();
   });
 
@@ -230,7 +235,6 @@ window.onload = () => {
     } else {
       keyboard.deactivateAllButtons();
     }
-
     if (event.code === 'ControlLeft') {
       keyboard.ctrlPressed = false;
     }
